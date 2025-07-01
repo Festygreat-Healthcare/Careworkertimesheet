@@ -4,9 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Care Worker Timesheet</title>
-    <!-- Tailwind CSS CDN for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts - Inter for a clean look -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Custom CSS Variables */
@@ -153,7 +151,6 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Message Box for alerts -->
         <div id="messageBox" class="message-box hidden">
             <div class="message-box-content">
                 <p id="messageText" class="text-lg font-medium text-gray-800"></p>
@@ -161,8 +158,6 @@
             </div>
         </div>
 
-        <!-- Login/Registration View -->
-         <li class="nav-item"><a class="nav-link" href="admin.html">Admin</a></li>
         <div id="authView" class="flex flex-col items-center justify-center space-y-8">
             <h2 class="text-4xl font-bold text-gray-800 mb-4">Welcome to Timesheet</h2>
 
@@ -197,7 +192,6 @@
             </div>
         </div>
 
-        <!-- Timesheet Application View (hidden by default) -->
         <div id="timesheetView" class="hidden">
             <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
                 <h2 class="text-3xl font-bold text-gray-800 text-center sm:text-left">Care Worker Timesheet</h2>
@@ -229,12 +223,13 @@
                     <label class="block">
                         <span class="text-gray-700 text-sm font-medium">Client</span>
                         <select id="clientSelect" class="mt-1">
-                            <!-- Clients will be dynamically loaded here from localStorage -->
+                            <option value="SK">SK</option>
+                            <option value="Felix">Felix</option>
+                            <option value="Luke">Luke</option>
                         </select>
                     </label>
                 </div>
 
-                <!-- Call input row - Modified for separate hours and minutes input -->
                 <div class="flex flex-col sm:flex-row items-end gap-4 mb-6">
                     <label class="block flex-grow">
                         <span class="text-gray-700 text-sm font-medium">Call Type</span>
@@ -256,7 +251,6 @@
                     <button onclick="addCall()" class="w-full sm:w-auto px-6 py-3 font-semibold rounded-lg shadow-md bg-indigo-600 hover:bg-indigo-700 text-white">Add Call</button>
                 </div>
 
-                <!-- Calls table -->
                 <table id="callsTable" class="mb-4">
                     <thead>
                         <tr>
@@ -266,8 +260,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Dynamically filled -->
-                    </tbody>
+                        </tbody>
                 </table>
 
                 <div class="flex justify-between items-center">
@@ -278,7 +271,6 @@
 
             <div class="bg-gray-50 p-6 rounded-lg shadow-inner border border-gray-200">
                 <h3 class="text-xl font-semibold text-gray-700 mb-4">Previous Entries</h3>
-                <!-- New element to display total hours -->
                 <div id="totalHoursDisplay" class="text-lg font-semibold text-gray-800 mb-4 text-right pr-2">
                     Total Hours for Period: 0.00 hrs
                 </div>
@@ -298,12 +290,10 @@
                                 <th>Day</th>
                                 <th>Client</th>
                                 <th>Total Units</th>
-                                <th>Actions</th> <!-- New column for delete button -->
-                            </tr>
+                                <th>Actions</th> </tr>
                         </thead>
                         <tbody>
-                            <!-- Dynamically filled -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -361,7 +351,8 @@
 
         // Get clients from localStorage
         function getClients() {
-            return JSON.parse(localStorage.getItem("clients") || "[]");
+            // Updated to provide default clients directly
+            return [{ name: "SK" }, { name: "Felix" }, { name: "Luke" }];
         }
 
         // Load clients into the dropdown
@@ -369,16 +360,7 @@
             const clientSelect = document.getElementById('clientSelect');
             clientSelect.innerHTML = ''; // Clear existing options
             const clients = getClients();
-            if (clients.length === 0) {
-                const defaultOption = document.createElement('option');
-                defaultOption.value = '';
-                defaultOption.textContent = 'No clients available';
-                defaultOption.disabled = true;
-                defaultOption.selected = true;
-                clientSelect.appendChild(defaultOption);
-                return;
-            }
-
+            
             clients.forEach(client => {
                 const option = document.createElement('option');
                 option.value = client.name;
