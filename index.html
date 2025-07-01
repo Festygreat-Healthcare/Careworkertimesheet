@@ -289,6 +289,7 @@
                                 <th>Date</th>
                                 <th>Day</th>
                                 <th>Client</th>
+                                <th>Call Type(s)</th>
                                 <th>Total Units</th>
                                 <th>Actions</th> </tr>
                         </thead>
@@ -496,6 +497,12 @@
                 return;
             }
 
+            // Check for call type duplication for the current entry being built
+            if (calls.some(call => call.callType === callType)) {
+                showMessage(`Call type "${callType}" already added for this entry. Please choose a different type or edit existing.`);
+                return;
+            }
+
             // Add call
             calls.push({ callType, unitTime }); // Store duration always in hours
 
@@ -631,6 +638,23 @@
             }
 
             const entries = getEntries();
+            if (!entries[username]) {
+                entries[username] = [];
+            }
+
+            // Check for duplication: same date, client, and any of the call types
+            const isDuplicate = calls.some(newCall => {
+                return entries[username].some(existingEntry => 
+                    existingEntry.date === date && 
+                    existingEntry.client === client && 
+                    existingEntry.calls.some(existingCall => existingCall.callType === newCall.callType)
+                );
+            });
+
+            if (isDuplicate) {
+                showMessage("An entry for this date, client, and one or more of the selected call types already exists. Please review or modify your entry.");
+                return;
+            }
 
             const newEntry = {
                 id: Date.now(), // Assign a simple unique ID for tracking
@@ -641,9 +665,6 @@
                 totalUnits: calls.reduce((sum, c) => sum + c.unitTime, 0)
             };
 
-            if (!entries[username]) {
-                entries[username] = [];
-            }
             entries[username].push(newEntry);
             saveEntries(entries);
 
@@ -689,7 +710,7 @@
         function loadEntries() {
             const username = getLoggedInUser();
             if (!username) {
-                document.querySelector("#entriesTable tbody").innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Please log in to view entries.</td></tr>';
+                document.querySelector("#entriesTable tbody").innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">Please log in to view entries.</td></tr>'; // Updated colspan
                 document.getElementById('totalHoursDisplay').textContent = 'Total Hours for Period: 0.00 hrs'; // Clear total hours
                 return;
             }
@@ -716,7 +737,7 @@
             });
 
             if (filteredEntries.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">No records found for this month.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">No records found for this month.</td></tr>'; // Updated colspan
                 document.getElementById('totalHoursDisplay').textContent = 'Total Hours for Period: 0.00 hrs'; // Clear total hours
                 return;
             }
@@ -726,11 +747,15 @@
             filteredEntries.forEach(filteredEntry => {
                 const originalIndex = userEntries.findIndex(entry => entry.id === filteredEntry.id);
                 
+                // Extract call types and join them for display
+                const callTypesDisplay = filteredEntry.calls.map(call => call.callType).join(', ');
+
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
                     <td>${filteredEntry.date}</td>
                     <td>${filteredEntry.day}</td>
                     <td>${filteredEntry.client}</td>
+                    <td>${callTypesDisplay}</td>
                     <td>${filteredEntry.totalUnits.toFixed(2)}</td>
                     <td>
                         <button onclick="removeEntry(${originalIndex}, '${filteredEntry.id}')" class="text-red-600 hover:text-red-800 font-semibold text-sm py-1 px-2 rounded-md">Delete</button>
